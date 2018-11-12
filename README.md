@@ -4,18 +4,19 @@ without the help of third-party libraries.
 At the beginning the list of products is downloaded from backend API via 
 asynchronous network request with URLSession DataTask.
 
-A JSON stanza recived from the backend API looks like this:[
-  {
-    "weight": "21 oz",
-    "description": "6 bagels. Low fat.",
-    "product": "Pepperidge Farm Bagels - Plain Pre-Sliced",
-    "category": "Bakery",
-    "icon": "https://securecontent.shoprite.com/legacy/productimagesroot/DJ/0/46700.jpg",
-    "price": 3.1,
-    "onSale": false,
-    "index": 0,
-    "SKU": "014100078081"
-  },..]
+A JSON stanza recived from the backend API looks like this:
+
+[{
+  "weight": "21 oz",
+  "description": "6 bagels. Low fat.",
+  "product": "Pepperidge Farm Bagels - Plain Pre-Sliced",
+  "category": "Bakery",
+  "icon": "https://securecontent.shoprite.com/legacy/productimagesroot/DJ/0/46700.jpg",
+  "price": 3.1,
+  "onSale": false,
+  "index": 0,
+  "SKU": "014100078081"
+  }, ]
 
 Once the list is received, the local array of records is filled via 
 JSONSerialization in the completion block of URLSession dataTask and 
