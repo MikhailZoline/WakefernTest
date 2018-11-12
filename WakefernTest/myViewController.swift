@@ -18,12 +18,15 @@ class myViewController : UIViewController, UITableViewDelegate, UITableViewDataS
     
     @IBOutlet var myTableView : UITableView!
     
-    var myCashe : NSCache<NSString, UIImage> = NSCache<NSString, UIImage>()
+    var myCache : NSCache<NSString, UIImage> = NSCache<NSString, UIImage>()
+    
+    var myQueue: OperationQueue = OperationQueue()
     
     override func viewDidLoad()
     {
         // Call the parent class viewDidLoad
         super.viewDidLoad()
+        myQueue.qualityOfService = .userInteractive
         let operation = BlockOperation(block: {[weak self] in
             do {
                 let jsonData = try JSONSerialization.data(withJSONObject: productsStub, options: .prettyPrinted)
@@ -39,7 +42,7 @@ class myViewController : UIViewController, UITableViewDelegate, UITableViewDataS
             self?.myTableView.reloadData()
             }
         }
-        OperationQueue.main.addOperation(operation)
+        myQueue.addOperation(operation)
 /*
         // Make a REST request to the Product API to get the list of products
         guard let url = URL(string: "https://depwfc-test-cisd-dev.azure-api.net/mockexample/V1/") else {
@@ -53,7 +56,6 @@ class myViewController : UIViewController, UITableViewDelegate, UITableViewDataS
                 fatalError(
                     "Failed Network Request at \(String(describing: request.url))")
             }else{
-//                print("Data: \(String(describing: NSString(data: data!,encoding: String.Encoding.utf8.rawValue)))")
                 OperationQueue.main.addOperation {
                     do {
                         self.myProducts = try
@@ -68,25 +70,6 @@ class myViewController : UIViewController, UITableViewDelegate, UITableViewDataS
             }
         }.resume()
 */
-        //        URLSession.shared.dataTask(with: url!, completionHandler: {
-        //            (data, response, error) in
-        //            if(error != nil){
-        //                print("error")
-        //            }else{
-        //                do{
-        //                    let json = try JSONSerialization.jsonObject(with:
-        //                    data!, options:.allowFragments) as! [String :
-        //                    AnyObject]
-        //
-        //                    OperationQueue.main.addOperation({
-        //                        self.tableView.reloadData()
-        //                    })
-        //
-        //                }catch let error as NSError{
-        //                    print(error)
-        //                }
-        //            }
-        //        }).resume()
     }
     
     func tableView(_ tableView
@@ -104,7 +87,7 @@ class myViewController : UIViewController, UITableViewDelegate, UITableViewDataS
         let product = myProducts[indexPath.row]
         // Use cache
         if
-            let image = myCashe.object(forKey : product.icon as NSString) {
+            let image = myCache.object(forKey : product.icon as NSString) {
             myCell.Icon.image = image
         }
         else {
@@ -115,7 +98,7 @@ class myViewController : UIViewController, UITableViewDelegate, UITableViewDataS
                         [weak self] in if let image : UIImage =
                             UIImage(named
                                 : "failed") {
-                            self?.myCashe.setObject(
+                            self?.myCache.setObject(
                                 image, forKey: product.icon as NSString)
                             if let updateCell =
                                     tableView.cellForRow(at
@@ -130,19 +113,12 @@ class myViewController : UIViewController, UITableViewDelegate, UITableViewDataS
                         [weak self] in if let image
                             : UIImage = UIImage(data
                                 : imageData! as Data) {
-                            self?.myCashe
+                            self?.myCache
                                 .setObject(image, forKey
                                 : product.icon as NSString)
-                            myCell.Icon.image = image
-//                            self?.myTableView.reloadRows(at
-//                                : [indexPath], with
-//                                :.automatic)
-                            //                            if let updateCell =
-                            //                            tableView.cellForRow(at:
-                            //                            indexPath) {
-                            //                                updateCell.imageView?.image
-                            //                                = image
-                            //                            }
+                            if myCell == tableView.cellForRow(at:indexPath){
+                                myCell.Icon.image = image
+                            }
                         }
                     }
                 }
